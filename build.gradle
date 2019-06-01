@@ -1,0 +1,34 @@
+plugins {
+	id 'org.springframework.boot' version '2.4.5'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	id 'com.github.ben-manes.versions' version '0.38.0'
+}
+
+bootJar {
+    baseName = 'rss-to-ical'
+    version =  '0.0.1-SNAPSHOT'
+}
+
+sourceCompatibility = 11
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+	implementation 'com.rometools:rome:1.15.0'
+	implementation 'org.mnode.ical4j:ical4j:3.0.25'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.2'
+	
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+	useJUnitPlatform()
+}
