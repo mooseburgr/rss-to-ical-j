@@ -2,7 +2,11 @@ package com.mooseburgr.rsstoical;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.SocketException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -11,9 +15,11 @@ import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +27,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+import com.google.cloud.functions.HttpRequest;
+import com.google.cloud.functions.HttpResponse;
+import com.mooseburgr.rsstoical.controllers.GoogleCloudFunction;
 import com.mooseburgr.rsstoical.controllers.ICalController;
 
 import io.jsonwebtoken.Claims;
@@ -33,7 +42,10 @@ import net.fortuna.ical4j.model.Date;
 @SpringBootTest
 class RssToIcalApplicationTests {
 	
-	private static final Logger logger = LoggerFactory.getLogger(RssToIcalApplicationTests.class);
+	static final Logger logger = LoggerFactory.getLogger(RssToIcalApplicationTests.class);
+	
+	String rssUrl = "https://demo.theeventscalendar.com/events/feed/";
+	int eventDuration = 50;
 
 	@Autowired
 	ICalController controller;
@@ -44,9 +56,7 @@ class RssToIcalApplicationTests {
 	}
 	
 	@Test
-	void testContentMapping() throws SocketException {
-		String rssUrl = "https://demo.theeventscalendar.com/events/feed/";
-		int eventDuration = 50;
+	void testRestController() throws SocketException {
 
 		ResponseEntity<String> resp = controller.getICalConversion(rssUrl, eventDuration, new MockHttpServletRequest());
 
@@ -56,6 +66,26 @@ class RssToIcalApplicationTests {
 		assertTrue(resp.getBody().contains("END:VCALENDAR"));
 		assertTrue(resp.getBody().contains("BEGIN:VEVENT"));
 		assertTrue(resp.getBody().contains("END:VEVENT"));
+	}
+	
+	@Test
+	void testGoogleCloudFunction() throws IOException {
+		HttpRequest req = Mockito.mock(HttpRequest.class);
+		when(req.getFirstQueryParameter("rssUrl")).thenReturn(Optional.of(rssUrl));
+		when(req.getFirstQueryParameter("eventDuration")).thenReturn(Optional.of("NaN"));
+		HttpResponse resp = Mockito.mock(HttpResponse.class);
+		StringWriter responseOut = new StringWriter();
+		BufferedWriter writerOut = new BufferedWriter(responseOut);
+		when(resp.getWriter()).thenReturn(writerOut);
+
+		new GoogleCloudFunction().service(req, resp);
+
+		writerOut.flush();
+		String responseBody = responseOut.toString();
+		assertTrue(responseBody.contains("BEGIN:VCALENDAR"));
+		assertTrue(responseBody.contains("END:VCALENDAR"));
+		assertTrue(responseBody.contains("BEGIN:VEVENT"));
+		assertTrue(responseBody.contains("END:VEVENT"));
 	}
 
 	@Test
