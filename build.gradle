@@ -6,8 +6,8 @@ plugins {
 }
 
 bootJar {
-    baseName = 'rss-to-ical'
-    version =  '0.0.1-SNAPSHOT'
+    archiveBaseName = 'rss-to-ical'
+    archiveVersion =  '0.0.1-SNAPSHOT'
 }
 
 sourceCompatibility = 17
