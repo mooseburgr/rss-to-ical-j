@@ -31,7 +31,7 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	
 	implementation 'com.google.cloud.functions:functions-framework-api:1.0.4'
-	invoker 'com.google.cloud.functions.invoker:java-function-invoker:1.1.0'
+	invoker 'com.google.cloud.functions.invoker:java-function-invoker:1.1.1'
 	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'com.google.truth:truth:1.1.3'
