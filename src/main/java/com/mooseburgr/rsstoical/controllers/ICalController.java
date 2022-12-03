@@ -1,44 +1,41 @@
 package com.mooseburgr.rsstoical.controllers;
 
-import java.lang.invoke.MethodHandles;
+import com.mooseburgr.rsstoical.service.ConverterService;
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.SocketException;
-
-import javax.servlet.http.HttpServletRequest;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.fortuna.ical4j.model.Calendar;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mooseburgr.rsstoical.service.ConverterService;
-
-import net.fortuna.ical4j.model.Calendar;
-
 @RestController
+@RequiredArgsConstructor
+@Slf4j
 public class ICalController {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-	private final ConverterService service;
+  private final ConverterService service;
 
-	public ICalController(ConverterService service) {
-		this.service = service;
-	}
+  @GetMapping("/pub-ical.ics")
+  public ResponseEntity<String> getICalConversion(
+      @RequestParam String rssUrl,
+      @RequestParam(defaultValue = "60") int eventDuration,
+      HttpServletRequest req)
+      throws SocketException {
+    // this should be a serverless function
 
-	@GetMapping("/pub-ical.ics")
-	public ResponseEntity<String> getICalConversion(@RequestParam String rssUrl,
-			@RequestParam(defaultValue = "60") int eventDuration, HttpServletRequest req) throws SocketException {
-		// this should be a serverless function
+    log.info(
+        "Handling request: {}{}?{}",
+        req.getServerName(),
+        req.getRequestURI(),
+        StringUtils.trimToEmpty(req.getQueryString()));
 
-		logger.info("Handling request: {}{}?{}", req.getServerName(), req.getRequestURI(),
-				StringUtils.trimToEmpty(req.getQueryString()));
+    Calendar iCal = service.convertRssToICal(rssUrl, eventDuration);
 
-		Calendar iCal = service.convertRssToICal(rssUrl, eventDuration);
-
-		return ResponseEntity.ok().contentType(new MediaType("text", "calendar")).body(iCal.toString());
-	}
-
+    return ResponseEntity.ok().contentType(new MediaType("text", "calendar")).body(iCal.toString());
+  }
 }
