@@ -2,12 +2,11 @@ package com.mooseburgr.rsstoical.controllers;
 
 import com.mooseburgr.rsstoical.service.ConverterService;
 import jakarta.servlet.http.HttpServletRequest;
-import java.lang.invoke.MethodHandles;
 import java.net.SocketException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.model.Calendar;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,16 +14,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-// @Slf4j
+@RequiredArgsConstructor
+@Slf4j
 public class ICalController {
 
-  private static final Logger logger =
-      LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private final ConverterService service;
-
-  public ICalController(ConverterService service) {
-    this.service = service;
-  }
 
   @GetMapping("/pub-ical.ics")
   public ResponseEntity<String> getICalConversion(
@@ -34,7 +28,7 @@ public class ICalController {
       throws SocketException {
     // this should be a serverless function
 
-    logger.info(
+    log.info(
         "Handling request: {}{}?{}",
         req.getServerName(),
         req.getRequestURI(),

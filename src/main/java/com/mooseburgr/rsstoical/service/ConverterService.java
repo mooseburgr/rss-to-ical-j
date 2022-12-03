@@ -4,9 +4,9 @@ import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 import io.jsonwebtoken.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.time.Duration;
+import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
@@ -24,24 +24,21 @@ import net.fortuna.ical4j.util.FixedUidGenerator;
 import net.fortuna.ical4j.util.SimpleHostInfo;
 import net.fortuna.ical4j.util.UidGenerator;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@Slf4j
 public class ConverterService {
 
-  private static final Logger logger =
-      LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   private static final RestTemplate client =
       new RestTemplate(new OkHttp3ClientHttpRequestFactory());
 
   public Calendar convertRssToICal(String rssUrl, int eventDuration) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("RSS response: {}", client.getForEntity(rssUrl, String.class));
+    if (log.isDebugEnabled()) {
+      log.debug("RSS response: {}", client.getForEntity(rssUrl, String.class));
     }
 
     SyndFeed feed =
@@ -54,11 +51,11 @@ public class ConverterService {
               try {
                 return input.build(new XmlReader(response.getBody()));
               } catch (Exception e) {
-                logger.error("Failed to parse RSS feed", e);
+                log.error("Failed to parse RSS feed", e);
                 throw new IOException("Could not parse response", e);
               }
             });
-    logger.debug("parsed SyndFeed: {}", feed);
+    log.debug("parsed SyndFeed: {}", feed);
 
     Calendar ical = new Calendar();
     String prodId = "-//" + feed.getTitle() + "//mooseburgr/rss-to-ical";
@@ -74,7 +71,7 @@ public class ConverterService {
     UidGenerator uidGenerator =
         new FixedUidGenerator(new SimpleHostInfo(URI.create(rssUrl).getHost()), feed.getTitle());
 
-    feed.getEntries().stream()
+    feed.getEntries()
         .forEach(
             entry -> {
               VEvent event =
@@ -95,7 +92,7 @@ public class ConverterService {
 
               ical.getComponents().add(event);
             });
-    logger.info("generated calendar: {}", ical);
+    log.info("generated calendar: {}", ical);
 
     return ical;
   }
