@@ -22,8 +22,8 @@ jobs:
     - name: Build / pull image
       run: |
         cd /tmp/dependabot-script
-        docker pull dependabot/dependabot-core
-#        docker build -t "dependabot/dependabot-script" -f Dockerfile .
+        docker build -t "dependabot/dependabot-script" -f Dockerfile .
+#        docker pull dependabot/dependabot-core        
     - name: Run dependabot
       env:
         # Select your package manager
