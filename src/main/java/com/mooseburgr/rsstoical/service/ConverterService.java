@@ -58,7 +58,7 @@ public class ConverterService {
     log.debug("parsed SyndFeed: {}", feed);
 
     Calendar ical = new Calendar();
-    String prodId = "-//" + feed.getTitle() + "//mooseburgr/rss-to-ical";
+    String prodId = "-//" + feed.getTitle() + "//mooseburgr/rss-to-ical-j";
     ical.getProperties().add(new ProdId(prodId));
     ical.getProperties().add(Version.VERSION_2_0);
     ical.getProperties().add(CalScale.GREGORIAN);

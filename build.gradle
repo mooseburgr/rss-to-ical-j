@@ -8,11 +8,11 @@ plugins {
 }
 
 bootJar {
-    archiveBaseName = 'rss-to-ical'
+    archiveBaseName = 'rss-to-ical-j'
     archiveVersion =  '0.0.1-SNAPSHOT'
 }
 
-sourceCompatibility = 17
+sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
 	mavenCentral()
