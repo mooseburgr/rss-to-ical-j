@@ -36,7 +36,7 @@ dependencies {
 	invoker 'com.google.cloud.functions.invoker:java-function-invoker:1.3.0'
 	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'com.google.truth:truth:1.1.4'
+	testImplementation 'com.google.truth:truth:1.1.5'
 }
 
 tasks.register("runFunction", JavaExec) {
